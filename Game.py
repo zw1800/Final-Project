@@ -1,3 +1,5 @@
+import random
+import chat_group as grp
 class Game:
     def __init__(self, names):
     #names is a list of the names of the players
@@ -18,7 +20,18 @@ class Game:
         del self.role[temp]
 
     def assign_role(names):
-        
+       #return a dictionary: key = name of the player, value = characrer
+        chr_dict = {}
+        N = names[:]
+        random.shuffle(N)
+        for i in range(len(N)):
+            if i == 0:
+                chr_dict[N[i]] = "werewolf"
+            elif i == 4:
+                chr_dict[N[i]] = "seer"
+            else:
+                chr_dict[N[i]] = "villiger"
+        return chr_dict
         
         
                 
