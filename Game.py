@@ -1,19 +1,21 @@
 class Game:
     def __init__(self, names):
-        day = 1
+    #names is a list of the names of the players
+        self.day = 1
         self.role = self.assign_role(names)
-        status = {}
+        self.status = {}
         for i in names:
-            status[i] = "alive"
+            self.status[i] = "alive"
         
     def vote(self, candidates):
-        lst1 = []
+    #candidates is a dictionary of the players who are voted by others, key = name, value = number of votes
         max_vote = 0
         for i in candidates.keys():
             if candidates[i] >= max_vote:
                 max_vote = candidates[i]
                 temp = i
-        status[temp] = "dead"
+        self.status[temp] = "dead"
+        del self.role[temp]
 
     def assign_role(names):
         
