@@ -215,7 +215,12 @@ class Server:
                 # ---- end of your code --- #
                 mysend(from_sock, json.dumps(
                     {"action": "search", "results": str(search_rslt)}))
+            
+            elif msg["action"] == "accept":
+                pass
 
+            elif msg["action"] == "reject"
+                pass
 # ==============================================================================
 #                 the "from" guy really, really has had enough
 # ==============================================================================
