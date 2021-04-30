@@ -154,8 +154,9 @@ class ClientSM:
                 elif peer_msg["action"] == "gaming request":
                     print("Game request from peers, enter 'Yes' to accept, 'No' to reject")
                     self.state = S_WAITING
+            if self.state == S_LOGGEDIN:
+                self.out_msg += menu
                     
-
         elif self.state == S_WAITING:
             if my_msg = 'Yes':
                 mysend(self.s, json.dumps({"action":"accept"}))
@@ -169,8 +170,6 @@ class ClientSM:
                 # ----------end of your code----#
                 
             # Display the menu again
-            if self.state == S_LOGGEDIN:
-                self.out_msg += menu
 #==============================================================================
 # invalid state
 #==============================================================================
