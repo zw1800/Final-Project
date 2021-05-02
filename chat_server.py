@@ -224,9 +224,9 @@ class Server:
                     the_guys = self.group.list_me(from_name)
                     for g in the_guys:
                         to_sock = self.logged_name2sock[g]
-                        mysend(to_sock, json.dumps({"result": "start game!"}))
+                        mysend(to_sock, json.dumps({"results": "start game!"}))
                 else:
-                    mysend(from_sock, json.dumps({"result": "waiting for others to respond"}))
+                    mysend(from_sock, json.dumps({"results": "waiting for others to respond"}))
                     
                     
 
@@ -235,7 +235,7 @@ class Server:
                 the_guys = self.group.list_me(from_name)
                 for g in the_guys:
                     to_sock = self.logged_name2sock[g]
-                    mysend(to_sock, json.dumps({"result": "Request rejected. Fail to start!"}))
+                    mysend(to_sock, json.dumps({"results": "Request rejected. Fail to start!"}))
 # ==============================================================================
 #                 the "from" guy really, really has had enough
 # ==============================================================================
