@@ -32,6 +32,7 @@ class Server:
         self.indices = {}
         # sonnet
         self.sonnet = indexer.PIndex("AllSonnets.txt")
+        self.number_of_accept = 0
 
     def new_client(self, sock):
         # add to all sockets and to new clients
@@ -217,10 +218,24 @@ class Server:
                     {"action": "search", "results": str(search_rslt)}))
             
             elif msg["action"] == "accept":
-                pass
+                self.number_of_accept += 1
+                if self.number_of_accept == 4:
+                    from_name = self.logged_sock2name[from_sock]
+                    the_guys = self.group.list_me(from_name)
+                    for g in the_guys:
+                        to_sock = self.logged_name2sock[g]
+                        mysend(to_sock, json.dumps({"result": "start game!"}))
+                else:
+                    mysend(from_sock, json.dumps({"result": "waiting for others to respond"}))
+                    
+                    
 
-            elif msg["action"] == "reject"
-                pass
+            elif msg["action"] == "reject":
+                from_name = self.logged_sock2name[from_sock]
+                the_guys = self.group.list_me(from_name)
+                for g in the_guys:
+                    to_sock = self.logged_name2sock[g]
+                    mysend(to_sock, json.dumps({"result": "Request rejected. Fail to start!"}))
 # ==============================================================================
 #                 the "from" guy really, really has had enough
 # ==============================================================================
