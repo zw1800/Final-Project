@@ -168,15 +168,31 @@ class ClientSM:
                 self.out_msg += menu
                     
         elif self.state == S_WAITING:
-            if my_msg = 'Yes':
-                mysend(self.s, json.dumps({"action":"accept"}))
-                game_status = json.loads(myrecv(self.s))["results"]
+            if len(my_msg) > 0:
+                if my_msg = 'Yes':
+                    mysend(self.s, json.dumps({"action":"accept"}))
+                    game_status = json.loads(myrecv(self.s))["results"]
+                    if game_status == "start game!":
+                        self.state = S_GAMING
+                    print(game_status)
 
-            elif my_msg = 'NO':
-                mysend(self.s, json.dumps({"action":"reject"}))
-                game_status = json.loads(myrecv(self.s))["results"]
-                self.state = S_CHATTING
-            
+                elif my_msg = 'NO':
+                    mysend(self.s, json.dumps({"action":"reject"}))
+                    game_status = json.loads(myrecv(self.s))["results"]
+                    print(game_status)
+                    self.state = S_CHATTING
+                    
+                else:
+                    print("Error! Enter 'Yes' to accept, 'No' to reject")
+                    
+             if len(peer_msg) > 0:
+                 peer_msg = json.loads(peer_msg)
+                 if peer_msg["results"] == "start game!":
+                     self.state == S_GAMING
+                     print("start game!")
+                 elif peer_msg["results"] == "Request rejected. Fail to start!":
+                     self.state == S_CHATTING
+                     print("Request rejected. Fail to start!")
                 # ----------end of your code----#
                 
             # Display the menu again
