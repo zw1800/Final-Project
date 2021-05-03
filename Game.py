@@ -36,12 +36,14 @@ class Game:
         return chr_dict
         
         
-   def run()
+   def run():
+       pass
 
 
    def main(names):
         new_game = Game(names)
         new_game.run()
+        pass
  
         
         
