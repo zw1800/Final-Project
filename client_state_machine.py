@@ -200,7 +200,11 @@ class ClientSM:
 # invalid state
 #==============================================================================
         elif self.state == S_GAMING:
-            pass
+            if len(my_msg) > 0:
+                pass
+            
+            if len(peer_msg) > 0:
+                
         
         
         else:
