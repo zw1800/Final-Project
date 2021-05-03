@@ -33,6 +33,7 @@ class Server:
         # sonnet
         self.sonnet = indexer.PIndex("AllSonnets.txt")
         self.number_of_accept = 0
+        self.game = 0
 
     def new_client(self, sock):
         # add to all sockets and to new clients
@@ -222,10 +223,11 @@ class Server:
                 if self.number_of_accept == 4:
                     from_name = self.logged_sock2name[from_sock]
                     the_guys = self.group.list_me(from_name)
-                    for g in the_guys:
-                        to_sock = self.logged_name2sock[g]
-                        mysend(to_sock, json.dumps({"results": "start game!"}))
-                        Game.main(the_guys)
+                    self.game = Game.Game(the_guys)
+                    for i in self.game.role.keys():
+                        mysend(self.logged_name2sock[i], json.dumps({"results": "start game!", "Your role:": self.game.role[i]}))
+                        
+                    self.game.run_game()
                     self.number_of_accept = 0
                 else:
                     mysend(from_sock, json.dumps({"results": "waiting for others to respond"}))
@@ -266,6 +268,22 @@ class Server:
                 # new client request
                 sock, address = self.server.accept()
                 self.new_client(sock)
+                               
+def run_game():
+    for i in range(3):
+        for j in self.game.role.keys():
+            mysend(self.logged_name2sock[j], json.dumps({"message": "You can start the conversation to find out the werewolf!"})
+        for m in self.game.role.keys():
+            the_guys = self.group.list_me(m)
+            mysend(self.logged_name2sock[m], json.dumps({"message": "Your turn! Enter 'Finish' to end your turn"})
+            for n in the_guys[1:]:
+                mysend(self.logged_name2sock[m], json.dumps({"message": m + " is speaking"})
+            self.handdle_msg(self.logged_name2sock[m])
+            
+            
+        
+        
+        
 
 
 def main():
