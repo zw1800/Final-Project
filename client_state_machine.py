@@ -188,6 +188,8 @@ class ClientSM:
                  if peer_msg["results"] == "start game!":
                      self.state == S_GAMING
                      print("start game!")
+                     print("Assigning roles......")
+                     print("Your role: " + peer_msg["Your Role"])
                  elif peer_msg["results"] == "Request rejected. Fail to start!":
                      self.state == S_CHATTING
                      print("Request rejected. Fail to start!")
@@ -197,6 +199,10 @@ class ClientSM:
 #==============================================================================
 # invalid state
 #==============================================================================
+        elif self.state == S_GAMING:
+            pass
+        
+        
         else:
             self.out_msg += 'How did you wind up here??\n'
             print_state(self.state)
