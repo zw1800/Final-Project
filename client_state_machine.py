@@ -13,6 +13,7 @@ class ClientSM:
         self.me = ''
         self.out_msg = ''
         self.s = s
+        self.speaker = ''
 
     def set_state(self, state):
         self.state = state
@@ -200,11 +201,26 @@ class ClientSM:
 # invalid state
 #==============================================================================
         elif self.state == S_GAMING:
-            if len(my_msg) > 0:
-                pass
-            
-            if len(peer_msg) > 0:
+            if len(peer_mag) > 0:
+                peer_msg = json.loads(peer_msg)
+                self.speaker = peer_msg["speaker"]
+                if peer_msg["message"] == "You can start the conversation to find out the werewolf!":
+                    print(peer_msg["message"])                
+                elif peer_msg["message"] == "Your turn! Enter 'Finish' to end your turn":
+                    self.speaker = self.me
+                else:
+                    self.speaker = peer_msg["from"]
+                    print("[" + peer_msg["from"] + "]" + peer_msg["message"])
+            elif len(my_msg) > 0:
+                Name = self.me
+                if Name == self.speaker:
+                    mysend(self.s, json.dumps({"action":"exchange", "from":"[" + self.me + "]", "message":my_msg}))
+                else:
+                    print("Your have been muted: you will be allowed to give your comments when it is your turn!") 
                 
+                            
+                       
+            
         
         
         else:
