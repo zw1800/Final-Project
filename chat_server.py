@@ -225,6 +225,7 @@ class Server:
                     for g in the_guys:
                         to_sock = self.logged_name2sock[g]
                         mysend(to_sock, json.dumps({"results": "start game!"}))
+                    self.number_of_accept = 0
                 else:
                     mysend(from_sock, json.dumps({"results": "waiting for others to respond"}))
                     
