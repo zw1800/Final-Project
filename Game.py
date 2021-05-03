@@ -1,5 +1,7 @@
 import random
 import chat_group as grp
+import chat_server
+
 class Game:
     def __init__(self, names):
     #names is a list of the names of the players
@@ -34,7 +36,12 @@ class Game:
         return chr_dict
         
         
-                
+   def run()
+
+
+   def main(names):
+        new_game = Game(names)
+        new_game.run()
  
         
         
