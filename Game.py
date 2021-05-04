@@ -15,9 +15,11 @@ class Game:
     #candidates is a dictionary of the players who are voted by others, key = name, value = number of votes
         max_vote = 0
         for i in candidates.keys():
-            if candidates[i] >= max_vote:
+            if candidates[i] > max_vote:
                 max_vote = candidates[i]
                 temp = i
+            elif candidates[i] = max_vote:
+                return "tie", "none"
         self.status[temp] = "dead"
         identity = self.role[temp]
         del self.role[temp]
