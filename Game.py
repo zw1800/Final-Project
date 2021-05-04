@@ -19,10 +19,11 @@ class Game:
                 max_vote = candidates[i]
                 temp = i
         self.status[temp] = "dead"
+        identity = self.role[temp]
         del self.role[temp]
-        return temp
+        return temp, identity
 
-    def assign_role(names):
+    def assign_role(self, names):
        #return a dictionary: key = name of the player, value = characrer
         chr_dict = {}
         N = names[:]
@@ -37,14 +38,14 @@ class Game:
         return chr_dict
         
         
-   def run():
-       pass
-
-
-   def main(names):
-        new_game = Game(names)
-        new_game.run()
-        pass
+   def get_roletype(self, type):
+       result = []
+       for i in self.role.keys():
+           if self.role[i] = type:
+                result.append(i)
+       return result
+       
+  
  
         
         
