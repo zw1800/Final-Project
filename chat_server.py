@@ -38,8 +38,8 @@ class Server:
         self.stage = 0
         self.candidates = {}
         self.total_vote = 0
-        self.victim = 0
-        self.victim_role = 0
+        self.victim = ''
+        self.victim_role = ''
         
 
     def new_client(self, sock):
@@ -161,7 +161,7 @@ class Server:
                 #stage 1 conversation                   
                 elif self.stage == 1:
                     if msg_content == "Finished":
-                        if self.speaker_index == len(self.game.role.keys()):
+                        if self.speaker_index == (len(self.game.role.keys())-1):
                             self.speaker_index = 0
                             self.stage += 1
                             for j in self.game.role.keys():
@@ -234,8 +234,12 @@ class Server:
                    
                elif self.stage == 4:
                    check_id = msg_content.split()[1]
-                   if check_id in self.game.role.keys():
-                       mysend(from_sock, json.dumps({"status": "check role", "role": self.game.role[check_id]})) 
+                   if check_id in self.game.status.keys():
+                       if check_id in self.game.role.keys():
+                           mysend(from_sock, json.dumps({"status": "check role", "role": self.game.role[check_id]}))         
+                       else:
+                           mysend(from_sock, json.dumps({"status": "check role", "role": check_id + " is dead"]}))
+                              
                        for i in self.game.status.keys():
                            mysend(self.logged_name2sock[i], json.dumps({"status": "sun rises", "victim": self.victim, "victim role": self.victim_role})
                        mysend(self.logged_name2sock[self.victim], json.dumps({"status": "dead"})
@@ -253,22 +257,10 @@ class Server:
                            mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
                            for n in the_guys[1:]:
                                mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
-                                            
+ 
                    else:
-                       if check_id in self.game.status.keys():
-                           mysend(from_sock, json.dumps({"status": "check role", "role": check_id + " is dead"]}))
-                           for i in self.game.status.keys():
-                               mysend(self.logged_name2sock[i], json.dumps({"status": "sun rises", "victim": self.victim, "victim role": self.victim_role})
-                           mysend(self.logged_name2sock[self.victim], json.dumps({"status": "dead"})
-                       else:
-                           mysend(from_sock, json.dumps({"status": "check error"}))
+                       mysend(from_sock, json.dumps({"status": "check error"}))
                               
-                    
-                       
-                   
-                                      
-                                      
-                    
 
 # ==============================================================================
 # the "from" guy has had enough (talking to "to")!
