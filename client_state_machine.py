@@ -207,23 +207,73 @@ class ClientSM:
                 peer_msg = json.loads(peer_msg)
                 status = peer_msg["status"]
                 #self.speaker = peer_msg["speaker"]
+                
+                #stage of conversation
                 if status == "conversation start!":
                     print("You can start the conversation to find out the werewolf!")                
                 elif status == "speaking":
                     self.speaker = self.me
                     print("Your turn! Enter 'Finished' to end your turn")
+                
+                # stage of voting
                 elif status == "start voting!":
                     self.speaker = self.me
                     print("Now can start voting for the werewolf! Enter 'vote xxx' to vote")
                     #the player is now allowed to speak
+                elif status == "invalid vote, try again":
+                    print(status)
+                    
+                elif status == "vote received":
+                    print("Your vote has been received!")
+                    self.speaker = '' #mute the speaker
+                elif status == "voting result":
+                    print("The voting result is...")
+                    print(peer_msg["result"]+" has been killed")
+                elif status == "night falls":
+                    print("Night falls, the werewolf gotta kill someone!")#game continue!
+                #--------------------------
+                    
+                #the game will end at the following 2 conditions
+                elif status == "you are dead":
+                    print("You have been voted to death!.")
+                    self.state = S_CHATTING.
+                    #remove from the game?
+                elif status == "human wins!" or status == "werewolf wins!":
+                    print("The game has been terminated, and the result is...")
+                    print(status)
+                    self.state = S_CHATTING
+                #---------------------------
                 
+                #as a werewolf
+                elif status == "werewolf's turn":
+                    if self.role = "werewolf":
+                        print("Now it's your turn")
+                        print("If you wanna kill someone, enter 'kill xxx', if not, type 'kill none' instead")
+                        self.speaker = self.me
+                elif status == "victim killed" or status == "no one killed": #msg sent successfully
+                    self.speaker = ''
+                    print("You have made your decesion. Good luck!")
+                elif status == "victim error":
+                    print(status+", please type again!")
+                #---------------------------
                 
-                
+                #as a seer
+                elif status == "seer's turn":
+                    if self.role = 'seer':
+                        print("Now it's your turn")
+                        print("If you wanna check someone's identity, enter 'check xxx'")
+                        self.speaker = self.me
+                elif status == "check role":
+                    self.speaker = ''
+                    print("This player's identity is...")
+                    print(peer_msg["role"])
+                #---------------------------
                 
                 else:
                     #other players are typing msg
                     self.speaker = peer_msg["from"]
                     print("[" + peer_msg["from"] + "]" + peer_msg["message"])
+            
             elif len(my_msg) > 0:
                 Name = self.me
                 if Name == self.speaker:
