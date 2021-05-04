@@ -14,6 +14,7 @@ class ClientSM:
         self.out_msg = ''
         self.s = s
         self.speaker = ''
+        self.role = ''
 
     def set_state(self, state):
         self.state = state
@@ -188,6 +189,7 @@ class ClientSM:
                  peer_msg = json.loads(peer_msg)
                  if peer_msg["results"] == "start game!":
                      self.state == S_GAMING
+                     self.role = peer_msg["Your Role"]
                      print("start game!")
                      print("Assigning roles......")
                      print("Your role: " + peer_msg["Your Role"])
@@ -203,12 +205,23 @@ class ClientSM:
         elif self.state == S_GAMING:
             if len(peer_mag) > 0:
                 peer_msg = json.loads(peer_msg)
-                self.speaker = peer_msg["speaker"]
-                if peer_msg["message"] == "You can start the conversation to find out the werewolf!":
-                    print(peer_msg["message"])                
-                elif peer_msg["message"] == "Your turn! Enter 'Finish' to end your turn":
+                status = peer_msg["status"]
+                #self.speaker = peer_msg["speaker"]
+                if status == "conversation start!":
+                    print("You can start the conversation to find out the werewolf!")                
+                elif status == "speaking":
                     self.speaker = self.me
+                    print("Your turn! Enter 'Finished' to end your turn")
+                elif status == "start voting!":
+                    self.speaker = self.me
+                    print("Now can start voting for the werewolf! Enter 'vote xxx' to vote")
+                    #the player is now allowed to speak
+                
+                
+                
+                
                 else:
+                    #other players are typing msg
                     self.speaker = peer_msg["from"]
                     print("[" + peer_msg["from"] + "]" + peer_msg["message"])
             elif len(my_msg) > 0:
