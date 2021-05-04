@@ -48,6 +48,12 @@ class Game:
            if self.role[i] = type:
                 result.append(i)
        return result
+ 
+   def kill(self, name):
+       self.status[name] = "dead"
+       del self.role[name]
+       
+    
        
   
  
