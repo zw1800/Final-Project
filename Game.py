@@ -18,8 +18,10 @@ class Game:
             if candidates[i] > max_vote:
                 max_vote = candidates[i]
                 temp = i
-            elif candidates[i] = max_vote:
+                
+        if candidates.values().count(max_vote) > 1:
                 return "tie", "none"
+            
         self.status[temp] = "dead"
         identity = self.role[temp]
         del self.role[temp]
