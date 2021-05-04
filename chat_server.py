@@ -35,9 +35,11 @@ class Server:
         self.number_of_accept = 0
         self.game = 0
         self.speaker_index = 0
-        stage = 0
+        self.stage = 0
         self.candidates = {}
-        total_vote = 0
+        self.total_vote = 0
+        self.victim = 0
+        self.victim_role = 0
         
 
     def new_client(self, sock):
@@ -142,7 +144,7 @@ class Server:
                 self.indices[from_name].indexing(msg_content, self.indices[from_name].total_msgs - 1)
                 # ---- end of your code --- #
                 the_guys = self.group.list_me(from_name)[1:]
-                if stage == 0:
+                if self.stage == 0:
                     if msg_content == "gaming":
                         if len(self.group.list_me(from_name)) != 5:
                             mysend(self.logged_name2sock[from_name], json.dumps({"action": "exchange", "status": "number error"})
@@ -157,21 +159,19 @@ class Server:
                             mysend(to_sock, json.dumps({"action": "exchange", "from":from_name, "message":msg_content}) )
                 
                 #stage 1 conversation                   
-                elif stage == 1:
+                elif self.stage == 1:
                     if msg_content == "Finished":
                         if self.speaker_index == len(self.game.role.keys()):
                             self.speaker_index = 0
-                            stage += 1
+                            self.stage += 1
                             for j in self.game.role.keys():
                                 mysend(self.logged_name2sock[j], json.dumps({"status": "start voting!"})
                                            
                         else:           
                             self.speaker_index += 1
-                            for j in self.game.role.keys():
-                                mysend(self.logged_name2sock[j], json.dumps({"status": "conversation start!"})
-                                temp = self.game.role.keys()[self.speaker]
-                                the_guys = self.group.list_me(temp)
-                                mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
+                            temp = self.game.role.keys()[self.speaker]
+                            the_guys = self.group.list_me(temp)
+                            mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
                             for n in the_guys[1:]:
                                 mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
                     else: 
@@ -179,40 +179,95 @@ class Server:
                             to_sock = self.logged_name2sock[g]
                             mysend(to_sock, json.dumps({"status": "exchange", "from":from_name, "message":msg_content}) )
                        
-               elif stage == 2:
-                   vote_id == msg_content.split()[1]
+               elif self.stage == 2:
+                   vote_id = msg_content.split()[1]
                    if vote_id in self.game.role.keys():
                        if vote_id in self.candidates.keys():
                            self.candidates[vote_id] += 1
                        else:
                            self.candidates[vote_id] = 1
                        mysend(from_sock, json.dumps({"status": "vote received"}))
-                       total_vote += 1
-                       if total_vote == len(self.game.role.keys()):
-                           werewolf_name = self.game.get_roletype("werewolf")
+                       self.total_vote += 1
+                       if self.total_vote == len(self.game.role.keys()):
+                           werewolf_name = self.game.get_roletype("werewolf")[0]
                            result = self.game.vote(self.candidates)
                            mysend(self.logged_name2sock[result[0]], json.dumps({"status": "you are dead"}) 
                            for i in self.game.role.keys():
                                mysend(self.logged_name2sock[i], json.dumps({"status": "voting result", "result": result[0], "role": result[1]})
-                               if werewolf_name[0] == result[0]:
-                                   mysend(self.logged_name2sock[i], json.dumps({"status": "human wins!"})
-                                   stage = 0
+                           if werewolf_name == result[0]:
+                               for j in self.game.role.keys():     
+                                   mysend(self.logged_name2sock[j], json.dumps({"status": "human wins!"})
+                                   self.stage = 0
                                    self.game = 0
-                               elif len(self.game.role.keys()) == 2 and self.game.status[werewolf_name[0]] == "alive":
-                                   mysend(self.logged_name2sock[i], json.dumps({"status": "werewolf wins!"})
-                                   stage = 0
+                           elif len(self.game.role.keys()) == 2 and self.game.status[werewolf_name] == "alive":
+                               for m in self.game.role.keys(): 
+                                   mysend(self.logged_name2sock[m], json.dumps({"status": "werewolf wins!"})
+                                   self.stage = 0
                                    self.game = 0
-                               else:
-                                   stage += 1
-                                   for j in self.game.role.keys():
-                                       mysend(self.logged_name2sock[j], json.dumps({"status": "night falls"})
-                           
+                           else:
+                               self.stage += 1
+                               for n in self.game.role.keys():
+                                   mysend(self.logged_name2sock[n], json.dumps({"status": "night falls"})
+                               mysend(self.logged_name2sock[werewolf_name], json.dumps({"status": "werewolf's turn"})
                      
                    else:
                        mysend(from_sock, json.dumps({"status": "invalid vote, try again"}))
                                        
+               elif self.stage == 3:
+                   seer_name = self.game.get_roletype("seer")[0]
+                   kill_id = msg_content.split()[1]
+                   if kill_id in self.game.role.keys():
+                       self.victim = kill_id
+                       self.victim_role = self.game.role[kill_id]
+                       mysend(from_sock, json.dumps({"status": "victim killed"}))
+                       self.game.kill(kill_id)
+                       self.stage += 1
+                       mysend(self.logged_name2sock[seer_name], json.dumps({"status": "seer's turn"})
+                              
+                   elif kill_id == "none":
+                       mysend(from_sock, json.dumps({"status": "no one killed"}))
+                       self.stage += 1
+                       mysend(self.logged_name2sock[seer_name], json.dumps({"status": "seer's turn"})
+                                 
+                   else:
+                       mysend(from_sock, json.dumps({"status": "victim error"})) 
                    
+               elif self.stage == 4:
+                   check_id = msg_content.split()[1]
+                   if check_id in self.game.role.keys():
+                       mysend(from_sock, json.dumps({"status": "check role", "role": self.game.role[check_id]})) 
+                       for i in self.game.status.keys():
+                           mysend(self.logged_name2sock[i], json.dumps({"status": "sun rises", "victim": self.victim, "victim role": self.victim_role})
+                       mysend(self.logged_name2sock[self.victim], json.dumps({"status": "dead"})
+                       if len(self.game.role.keys()) == 2 and self.game.status[werewolf_name] == "alive":
+                           for m in self.game.status.keys(): 
+                               mysend(self.logged_name2sock[m], json.dumps({"status": "werewolf wins!"})
+                               self.stage = 0
+                               self.game = 0
+                       else:
+                           for j in self.game.role.keys():
+                               mysend(self.logged_name2sock[j], json.dumps({"status": "conversation start!"})
+                           self.stage = 1
+                           temp = self.game.role.keys()[self.speaker_index]
+                           the_guys = self.group.list_me(temp)
+                           mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
+                           for n in the_guys[1:]:
+                               mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
+                                            
+                   else:
+                       if check_id in self.game.status.keys():
+                           mysend(from_sock, json.dumps({"status": "check role", "role": check_id + " is dead"]}))
+                           for i in self.game.status.keys():
+                               mysend(self.logged_name2sock[i], json.dumps({"status": "sun rises", "victim": self.victim, "victim role": self.victim_role})
+                           mysend(self.logged_name2sock[self.victim], json.dumps({"status": "dead"})
+                       else:
+                           mysend(from_sock, json.dumps({"status": "check error"}))
+                              
+                    
                        
+                   
+                                      
+                                      
                     
 
 # ==============================================================================
@@ -291,6 +346,7 @@ class Server:
                         
                     for j in self.game.role.keys():
                         mysend(self.logged_name2sock[j], json.dumps({"status": "conversation start!"})
+                    self.stage += 1
                     temp = self.game.role.keys()[self.speaker_index]
                     the_guys = self.group.list_me(temp)
                     mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
