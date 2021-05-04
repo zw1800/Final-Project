@@ -20,6 +20,7 @@ class Game:
                 temp = i
         self.status[temp] = "dead"
         del self.role[temp]
+        return temp
 
     def assign_role(names):
        #return a dictionary: key = name of the player, value = characrer
