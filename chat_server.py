@@ -34,7 +34,9 @@ class Server:
         self.sonnet = indexer.PIndex("AllSonnets.txt")
         self.number_of_accept = 0
         self.game = 0
-        self.speaker = 0
+        self.speaker_index = 0
+        stage = 0
+        self.candidates = {}
         
 
     def new_client(self, sock):
@@ -139,25 +141,45 @@ class Server:
                 self.indices[from_name].indexing(msg_content, self.indices[from_name].total_msgs - 1)
                 # ---- end of your code --- #
                 the_guys = self.group.list_me(from_name)[1:]
-                if msg_content = "gaming":
-                    if len(self.group.list_me(from_name)) != 5:
-                        mysend(self.logged_name2sock[from_name], json.dumps({"action": "exchange", "status": "number error"})
-                    else:
-                        mysend(self.logged_name2sock[from_name], json.dumps({"action": "exchange", "status": "successfully sent"})
+                if stage == 0:
+                    if msg_content == "gaming":
+                        if len(self.group.list_me(from_name)) != 5:
+                            mysend(self.logged_name2sock[from_name], json.dumps({"action": "exchange", "status": "number error"})
+                        else:
+                            mysend(self.logged_name2sock[from_name], json.dumps({"action": "exchange", "status": "successfully sent"})
+                            for g in the_guys:
+                                to_sock = self.logged_name2sock[g]
+                                mysend(to_sock, json.dumps({"action": "gaming request"}))
+                    else: 
                         for g in the_guys:
-                               to_sock = self.logged_name2sock[g]
-                               mysend(to_sock, json.dumps({"action": "gaming request"}))
-                else:
+                            to_sock = self.logged_name2sock[g]
+                            mysend(to_sock, json.dumps({"action": "exchange", "from":from_name, "message":msg_content}) )
+                
+                #stage 1 conversation                   
+                if stage == 1:
                     if msg_content = "Finished":
-                        self.speaker += 1
+                        if self.speaker_index == len(self.game.role.keys()):
+                            self.speaker_index = 0
+                            stage += 1
+                            for j in self.game.role.keys():
+                                mysend(self.logged_name2sock[j], json.dumps({"status": "start voting!"})
+                                           
+                        else:           
+                            self.speaker_index += 1
+                            for j in self.game.role.keys():
+                                mysend(self.logged_name2sock[j], json.dumps({"status": "conversation start!"})
+                                temp = self.game.role.keys()[self.speaker]
+                                the_guys = self.group.list_me(temp)
+                                mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
+                            for n in the_guys[1:]:
+                                mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
+                    else: 
+                        for g in the_guys:
+                            to_sock = self.logged_name2sock[g]
+                            mysend(to_sock, json.dumps({"status": "exchange", "from":from_name, "message":msg_content}) )
                        
-                        
-                    for g in the_guys:
-                        to_sock = self.logged_name2sock[g]
-                    # IMPLEMENTATION
-                    # ---- start your code ---- #
-                        mysend(to_sock, json.dumps({"action": "exchange", "from":from_name, "message":msg_content}) )
-                    # ---- end of your code --- #
+                if stage == 2:
+                    
 
 # ==============================================================================
 # the "from" guy has had enough (talking to "to")!
@@ -233,7 +255,13 @@ class Server:
                     for i in self.game.role.keys():
                         mysend(self.logged_name2sock[i], json.dumps({"results": "start game!", "Your role:": self.game.role[i]}))
                         
-                    run_game()
+                    for j in self.game.role.keys():
+                        mysend(self.logged_name2sock[j], json.dumps({"status": "conversation start!"})
+                    temp = self.game.role.keys()[self.speaker_index]
+                    the_guys = self.group.list_me(temp)
+                    mysend(self.logged_name2sock[temp], json.dumps({"speaker": temp, "status": "speaking"})
+                    for n in the_guys[1:]:
+                        mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
                     self.number_of_accept = 0
                 else:
                     mysend(from_sock, json.dumps({"results": "waiting for others to respond"}))
@@ -275,29 +303,6 @@ class Server:
                 sock, address = self.server.accept()
                 self.new_client(sock)
                                
-def run_game():                         
-    for i in range(3):
-        
-        
-            
-            
-def interaction():
-    if stage = 1:
-        for j in self.game.role.keys():
-            mysend(self.logged_name2sock[j], json.dumps({"message": "You can start the conversation to find out the werewolf!"})
-        temp = self.game.role.keys()[self.speaker]
-        the_guys = self.group.list_me(temp)
-        mysend(self.logged_name2sock[temp], json.dumps({"message": "Your turn! Enter 'Finished' to end your turn"})
-        for n in the_guys[1:]:
-            mysend(self.logged_name2sock[n], json.dumps({"speaker": temp, "status": "listening"})
-            
-        
-        
-            
-        
-        
-        
-
 
 def main():
     server = Server()
