@@ -1,5 +1,5 @@
 # Werewolf Game
-[link to the project](https://github.com/zw1800/Final-Project)
+
 Background:
 This is our final project for Introduction to Computer Science at NYU Shanghai. We were inspired by the message-driven feature of Werewolf Game in reality and we aimed to build a virtual version of the game based on a chat system.
 
